@@ -7,7 +7,8 @@ To publish and run this funciton there are a few steps
 1. Create the function app in Azure.
 2. Provision a new Table called "RefreshSchedule" in the storage account, and populate it with some records to drive refresh.
 3. Update the local.settings.json file with the following body and populate the necessary values in [] brackets.
-  {
+```javascript
+{
     "IsEncrypted": false,
     "Values": {
       "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=[storageaccountname];AccountKey=[storageaccountkey];BlobEndpoint=https://[storageaccountname].blob.core.windows.net/;TableEndpoint=https://[storageaccountname].table.core.windows.net/;QueueEndpoint=https://[storageaccountname].queue.core.windows.net/;FileEndpoint=https://[storageaccountname].file.core.windows.net/",
@@ -22,6 +23,7 @@ To publish and run this funciton there are a few steps
       "pbiPassword": "[password]"
     }
   }
+  ```
 4. Once the local.settings.json file is populated these you can run locally to test/debug.
 5. After you've ensured the code works, use visual studio build a publish profile and deploy.
 6. The publish profile doesn't automatically copy over the necessary app settings so you'll either need to manually copy the values in the local.settins.json file into the function app's app settings, or create them via powershell the first time.  Subesquent deployments will leave the settings untouched so this is a onetime action.
