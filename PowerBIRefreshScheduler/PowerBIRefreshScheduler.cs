@@ -25,18 +25,26 @@ namespace PowerBIRefreshScheduler
             //Note:  DateTime.Now.Hour always returns the hour in a 24 hour clock so rows in table storage should be 00 - 23
             string hour = DateTime.Now.Hour.ToString("D2");
             string minute = DateTime.Now.Minute.ToString("D2");
-                        
-            //Get the list of datasets scheduled for the current our and 5 minute window.
-            List <ScheduleItem> datasets = GetDatasets(hour, minute, log);
 
-            if (datasets.Count != 0)
+            try
             {
-                //Kickoff the refresh action for each defined dataset.
-                RefreshModels(datasets, log);
+                //Get the list of datasets scheduled for the current our and 5 minute window.
+                List<ScheduleItem> datasets = GetDatasets(hour, minute, log);
+
+                if (datasets.Count != 0)
+                {
+                    //Kickoff the refresh action for each defined dataset.
+                    RefreshModels(datasets, log);
+                }
+                else
+                {
+                    log.Info($"No datasets to refresh for hour: {hour} and minute: {minute}");
+                }
             }
-            else
+            catch (Exception e)
             {
-                log.Info($"No datasets to refresh for hour: {hour} and minute: {minute}");
+                log.Warning($"Unexpected exception. {e.InnerException.ToString()}");
+
             }
         }
 
@@ -61,6 +69,7 @@ namespace PowerBIRefreshScheduler
         {
             List<ScheduleItem> datasets = new List<ScheduleItem>();
 
+             
             // Retrieve storage account information from connection string.
             string storageConnectionString = ConfigurationManager.AppSettings["TableConnectionString"];
             bool ignoreHour = ConfigurationManager.AppSettings["ignoreHour"] == "True" ? true : false;
@@ -70,7 +79,7 @@ namespace PowerBIRefreshScheduler
             // Create a table client for interacting with the table service
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
             CloudTable table = tableClient.GetTableReference("RefreshSchedule");
-           
+
             try
             {
                 //Get all the scheduled dataset refreshes for the current minute and hour combination.
